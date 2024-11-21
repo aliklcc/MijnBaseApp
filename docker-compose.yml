@@ -1,0 +1,35 @@
+services:
+  frontend:
+    build: 
+       context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - todo-api-service
+  todo-api-service: 
+    build: 
+      context: ./backend
+    environment:
+      - "STORAGE=mysql"
+      - "MYSQL_HOST=database"
+      - "MYSQL_USER=ali"
+      - "MYSQL_PWD=my-secret-pw"
+      - "MYSQL_DB=mydb"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - database
+  database:
+    image: mysql:8.0.30-debian
+    ports:
+    - "3307:3306"
+    environment:
+      - "MYSQL_ROOT_PASSWORD=my-secret-pw"
+      - "MYSQL_USER=ali"
+      - "MYSQL_DATABASE=mydb"
+      - "MYSQL_PASSWORD=my-secret-pw"
+    volumes:
+    - ./sqlscripts:/docker-entrypoint-initdb.d
+    - dbdata:/var/lib/mysql
+volumes:
+  dbdata:
